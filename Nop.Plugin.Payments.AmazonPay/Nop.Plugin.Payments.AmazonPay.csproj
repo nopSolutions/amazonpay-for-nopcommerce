@@ -78,6 +78,9 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Pay.API.SDK" Version="2.7.3" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.9">
+      <Aliases>Crypto</Aliases>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

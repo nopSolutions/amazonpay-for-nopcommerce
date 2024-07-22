@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿extern alias Crypto;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +13,10 @@ using Nop.Services.Logging;
 using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc.Routing;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
+using Crypto.Org.BouncyCastle.Crypto;
+using Crypto.Org.BouncyCastle.Crypto.Parameters;
+using Crypto.Org.BouncyCastle.OpenSsl;
+using Crypto.Org.BouncyCastle.Security;
 
 namespace Nop.Plugin.Payments.AmazonPay.Services;
 
