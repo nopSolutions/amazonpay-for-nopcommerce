@@ -1,116 +1,111 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Data;
 using Nop.Services.Catalog;
 
-namespace Nop.Plugin.Payments.AmazonPay.Services
+namespace Nop.Plugin.Payments.AmazonPay.Services;
+
+public class DisallowedProducts
 {
-    public class DisallowedProducts
+    private bool _initialized;
+
+    private readonly ICategoryService _categoryService;
+    private readonly IRepository<GenericAttribute> _genericAttributeRepository;
+
+    private readonly ConcurrentDictionary<int, List<int>> _products;
+    private readonly ConcurrentDictionary<int, bool> _categories;
+
+    public DisallowedProducts(ICategoryService categoryService,
+        IRepository<GenericAttribute> genericAttributeRepository)
     {
-        private bool _initialized;
+        _products = new ConcurrentDictionary<int, List<int>>();
+        _categories = new ConcurrentDictionary<int, bool>();
 
-        private readonly ICategoryService _categoryService;
-        private readonly IRepository<GenericAttribute> _genericAttributeRepository;
+        _categoryService = categoryService;
+        _genericAttributeRepository = genericAttributeRepository;
+    }
 
-        private readonly ConcurrentDictionary<int, List<int>> _products;
-        private readonly ConcurrentDictionary<int, bool> _categories;
+    public async Task InitAsync()
+    {
+        if (_initialized)
+            return;
 
-        public DisallowedProducts(ICategoryService categoryService,
-            IRepository<GenericAttribute> genericAttributeRepository)
+        var ga = await _genericAttributeRepository.Table.Where(ga =>
+            ga.Key == AmazonPayDefaults.DoNotUseWithAmazonPayAttributeName && ga.Value == "true").ToListAsync();
+
+        foreach (var genericAttribute in ga)
         {
-            _products = new ConcurrentDictionary<int, List<int>>();
-            _categories = new ConcurrentDictionary<int, bool>();
+            if (genericAttribute.KeyGroup.Equals(nameof(Product), StringComparison.InvariantCultureIgnoreCase))
+                _products.TryAdd(genericAttribute.EntityId, null);
 
-            _categoryService = categoryService;
-            _genericAttributeRepository = genericAttributeRepository;
+            if (genericAttribute.KeyGroup.Equals(nameof(Category), StringComparison.InvariantCultureIgnoreCase))
+                _categories.TryAdd(genericAttribute.EntityId, true);
         }
 
-        public async Task InitAsync()
+        _initialized = true;
+    }
+
+    public async Task<bool> IsProductDisallowAsync(int productId)
+    {
+        await InitAsync();
+
+        if (_products.ContainsKey(productId))
+            return true;
+
+        var categories = await _categoryService.GetProductCategoriesByProductIdAsync(productId);
+
+        var disallowCategories = categories.Select(pc => pc.CategoryId).Where(c => _categories.ContainsKey(c)).ToList();
+
+        if (disallowCategories.Any())
         {
-            if (_initialized)
-                return;
+            if (!_products.ContainsKey(productId))
+                _products.TryAdd(productId, disallowCategories);
+            else
+                _products.TryUpdate(productId, disallowCategories, _products[productId]);
 
-            var ga = await _genericAttributeRepository.Table.Where(ga =>
-                ga.Key == AmazonPayDefaults.DoNotUseWithAmazonPayAttributeName && ga.Value == "true").ToListAsync();
-
-            foreach (var genericAttribute in ga)
-            {
-                if (genericAttribute.KeyGroup.Equals(nameof(Product), StringComparison.InvariantCultureIgnoreCase))
-                    _products.TryAdd(genericAttribute.EntityId, null);
-
-                if (genericAttribute.KeyGroup.Equals(nameof(Category), StringComparison.InvariantCultureIgnoreCase))
-                    _categories.TryAdd(genericAttribute.EntityId, true);
-            }
-
-            _initialized = true;
+            return true;
         }
 
-        public async Task<bool> IsProductDisallowAsync(int productId)
+        return false;
+    }
+
+    public async Task UpdateDataAsync(BaseEntity entity, bool disallowed)
+    {
+        if (entity == null)
+            return;
+
+        await InitAsync();
+
+        if (entity is Product)
         {
-            await InitAsync();
+            if (disallowed && !_products.ContainsKey(entity.Id))
+                _products.TryAdd(entity.Id, null);
 
-            if (_products.ContainsKey(productId))
-                return true;
-
-            var categories = await _categoryService.GetProductCategoriesByProductIdAsync(productId);
-
-            var disallowCategories = categories.Select(pc => pc.CategoryId).Where(c => _categories.ContainsKey(c)).ToList();
-
-            if (disallowCategories.Any())
-            {
-                if (!_products.ContainsKey(productId))
-                    _products.TryAdd(productId, disallowCategories);
-                else
-                    _products.TryUpdate(productId, disallowCategories, _products[productId]);
-
-                return true;
-            }
-
-            return false;
+            if (!disallowed && _products.ContainsKey(entity.Id))
+                _products.TryRemove(entity.Id, out _);
         }
 
-        public async Task UpdateDataAsync(BaseEntity entity, bool disallowed)
+        if (entity is Category)
         {
-            if (entity == null)
-                return;
+            if (disallowed && !_categories.ContainsKey(entity.Id))
+                _categories.TryAdd(entity.Id, true);
 
-            await InitAsync();
-
-            if (entity is Product)
+            if (!disallowed && _categories.ContainsKey(entity.Id))
             {
-                if (disallowed && !_products.ContainsKey(entity.Id))
-                    _products.TryAdd(entity.Id, null);
+                _categories.TryRemove(entity.Id, out _);
 
-                if (!disallowed && _products.ContainsKey(entity.Id))
-                    _products.TryRemove(entity.Id, out _);
-            }
+                var itemsToUpdate = _products.Where(key => key.Value?.Contains(entity.Id) ?? false);
 
-            if (entity is Category)
-            {
-                if (disallowed && !_categories.ContainsKey(entity.Id))
-                    _categories.TryAdd(entity.Id, true);
-
-                if (!disallowed && _categories.ContainsKey(entity.Id))
+                foreach (var item in itemsToUpdate)
                 {
-                    _categories.TryRemove(entity.Id, out _);
+                    var newValues = item.Value.Where(p => p != entity.Id).ToList();
 
-                    var itemsToUpdate = _products.Where(key => key.Value?.Contains(entity.Id) ?? false);
-
-                    foreach (var item in itemsToUpdate)
-                    {
-                        var newValues = item.Value.Where(p => p != entity.Id).ToList();
-
-                        if (newValues.Any())
-                            _products.TryUpdate(item.Key, newValues, item.Value);
-                        else
-                            _products.TryRemove(item.Key, out _);
-                    }
+                    if (newValues.Any())
+                        _products.TryUpdate(item.Key, newValues, item.Value);
+                    else
+                        _products.TryRemove(item.Key, out _);
                 }
             }
         }

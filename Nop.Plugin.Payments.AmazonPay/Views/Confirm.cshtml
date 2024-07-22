@@ -18,7 +18,7 @@
         <div class="section confirm-order">
             <form asp-controller="AmazonPayCheckout" asp-action="Confirm" method="post" id="confirm-order-form">
                 <script asp-location="Footer">
-                    $(document).ready(function () {
+                    $(function () {
                         $('#confirm-order-form').submit(function () {
                             $('input[type=submit]', this).attr('disabled', 'disabled');
                         });
@@ -121,7 +121,7 @@
 
 <script asp-location="Footer">
     //TODO: do something with displaying the order amount
-    $(document).ready(function () {
+    $(function () {
         $(".cart-footer").hide();
     });
 

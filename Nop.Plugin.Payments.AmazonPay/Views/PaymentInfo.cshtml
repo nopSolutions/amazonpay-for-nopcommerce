@@ -36,7 +36,7 @@
 }
 
 <script asp-location="Footer">
-    $(document).ready(function () {
+    $(function () {
 
         var isCartContainsNoAllowedProducts = @Model.IsCartContainsNoAllowedProducts.ToString().ToLower();
         if (isCartContainsNoAllowedProducts) {

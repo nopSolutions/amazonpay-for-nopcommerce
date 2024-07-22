@@ -29,7 +29,7 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(function () {
         $('#@Html.IdFor(model => model.PaymentRegion)').change(togglePaymentRegion);
         $('#@Html.IdFor(model => model.SetCredentialsManually)').click(toggleCredentials);
         toggleCredentials();
@@ -230,7 +230,7 @@
                         <div class="col-md-9">
                             <nop-select asp-for="ButtonPlacement" asp-items="@await ButtonPlacement.Cart.ToSelectListAsync(false)" asp-multiple="true" />
                             <script>
-                                $(document).ready(function () {
+                                $(function () {
                                     var categoryIdsInput = $('#@Html.IdFor(model => model.ButtonPlacement)').select2({
                                         closeOnSelect: false,
                                     });

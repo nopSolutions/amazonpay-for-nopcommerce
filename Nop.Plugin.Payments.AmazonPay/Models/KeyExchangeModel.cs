@@ -1,13 +1,12 @@
 ﻿using Nop.Web.Framework.Models;
 
-namespace Nop.Plugin.Payments.AmazonPay.Models
+namespace Nop.Plugin.Payments.AmazonPay.Models;
+
+public record KeyExchangeModel : BaseNopModel
 {
-    public record KeyExchangeModel : BaseNopModel
-    {
-        #region Properties
+    #region Properties
 
-        public string Payload { get; set; }
+    public string Payload { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

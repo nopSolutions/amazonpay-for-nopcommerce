@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Copyright>Copyright © Nop Solutions, Ltd</Copyright>
     <Company>Nop Solutions, Ltd</Company>
     <Authors>Nop Solutions, Ltd</Authors>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/nopSolutions/amazonpay-for-nopcommerce/blob/nopCommerce-4.70/LICENSE.md</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/nopSolutions/amazonpay-for-nopcommerce</RepositoryUrl>
     <PackageProjectUrl>https://www.nopcommerce.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nopSolutions/nopCommerce</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.AmazonPay</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
@@ -15,6 +15,7 @@
     You need to set this parameter to true if your plugin has a nuget package
     to ensure that the dlls copied from the NuGet cache to the output of your project-->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

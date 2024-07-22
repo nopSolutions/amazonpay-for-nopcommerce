@@ -3,7 +3,7 @@
 <button class="button-1" id="amazon-pay-change-button-@Model.ChangeAction">@T("Plugins.Payments.AmazonPay.Confirm.ChangeButton")</button>
 
 <script asp-location="Footer">
-    $(document).ready(function () {
+    $(function () {
         amazon.Pay.bindChangeAction('#amazon-pay-change-button-@Model.ChangeAction', {
             amazonCheckoutSessionId: '@Model.CheckoutSessionId',
             changeAction: '@Model.ChangeAction'

@@ -1,23 +1,22 @@
-﻿namespace Nop.Plugin.Payments.AmazonPay.Enums
+﻿namespace Nop.Plugin.Payments.AmazonPay.Enums;
+
+/// <summary>
+/// Represents button color enumeration
+/// </summary>
+public enum ButtonColor
 {
     /// <summary>
-    /// Represents button color enumeration
+    /// Gold
     /// </summary>
-    public enum ButtonColor
-    {
-        /// <summary>
-        /// Gold
-        /// </summary>
-        Gold = 1,
+    Gold = 1,
 
-        /// <summary>
-        /// Light gray
-        /// </summary>
-        LightGray = 2,
+    /// <summary>
+    /// Light gray
+    /// </summary>
+    LightGray = 2,
 
-        /// <summary>
-        /// Dark gray
-        /// </summary>
-        DarkGray = 3
-    }
+    /// <summary>
+    /// Dark gray
+    /// </summary>
+    DarkGray = 3
 }
