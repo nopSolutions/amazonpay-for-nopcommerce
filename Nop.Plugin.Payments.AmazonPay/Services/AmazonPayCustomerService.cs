@@ -105,7 +105,7 @@ public class AmazonPayCustomerService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return false;
@@ -148,7 +148,7 @@ public class AmazonPayCustomerService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return null;
@@ -185,7 +185,7 @@ public class AmazonPayCustomerService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return new RedirectToRouteResult("Login");
@@ -218,7 +218,7 @@ public class AmazonPayCustomerService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
         }
     }

@@ -2,6 +2,10 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using Crypto.Org.BouncyCastle.Crypto;
+using Crypto.Org.BouncyCastle.Crypto.Parameters;
+using Crypto.Org.BouncyCastle.OpenSsl;
+using Crypto.Org.BouncyCastle.Security;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Nop.Core;
@@ -13,10 +17,6 @@ using Nop.Services.Logging;
 using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc.Routing;
-using Crypto.Org.BouncyCastle.Crypto;
-using Crypto.Org.BouncyCastle.Crypto.Parameters;
-using Crypto.Org.BouncyCastle.OpenSsl;
-using Crypto.Org.BouncyCastle.Security;
 
 namespace Nop.Plugin.Payments.AmazonPay.Services;
 
@@ -106,28 +106,6 @@ public class AmazonPayOnboardingService
         return value;
     }
 
-    /// <summary>
-    /// Encrypt text with RSA algorithm
-    /// </summary>
-    /// <param name="value">Text value</param>
-    /// <param name="publicKey">Public key</param>
-    /// <returns>Encrypted value</returns>
-    private static string Encrypt(string value, string publicKey)
-    {
-        using var reader = new StringReader(publicKey);
-        var pemReader = new PemReader(reader);
-        var rsaPublicKey = (AsymmetricKeyParameter)pemReader.ReadObject();
-        var rsaParameters = DotNetUtilities.ToRSAParameters((RsaKeyParameters)rsaPublicKey);
-        using var rsa = new RSACryptoServiceProvider();
-        rsa.ImportParameters(rsaParameters);
-
-        var bytes = Encoding.Default.GetBytes(value);
-        var signatureBytes = rsa.Encrypt(bytes, false);
-        var signature = Convert.ToBase64String(signatureBytes);
-
-        return signature;
-    }
-
     #endregion
 
     #region Methods
@@ -201,7 +179,7 @@ public class AmazonPayOnboardingService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return (null, null);
@@ -222,7 +200,7 @@ public class AmazonPayOnboardingService
         {
             if (_amazonPaySettings.EnableLogging)
             {
-                var logMessage = $"{AmazonPayDefaults.PluginSystemName} key exchange request payload:{System.Environment.NewLine}{payload}";
+                var logMessage = $"{AmazonPayDefaults.PluginSystemName} key exchange request payload:{Environment.NewLine}{payload}";
                 await _logger.InsertLogAsync(LogLevel.Debug, $"{AmazonPayDefaults.PluginSystemName} key exchange request payload", logMessage);
             }
 
@@ -234,7 +212,7 @@ public class AmazonPayOnboardingService
 
             if (_amazonPaySettings.EnableLogging)
             {
-                var logMessage = $"{AmazonPayDefaults.PluginSystemName} URL decoded payload:{System.Environment.NewLine}{payload}";
+                var logMessage = $"{AmazonPayDefaults.PluginSystemName} URL decoded payload:{Environment.NewLine}{payload}";
                 await _logger.InsertLogAsync(LogLevel.Debug, $"{AmazonPayDefaults.PluginSystemName} URL decoded payload", logMessage);
             }
 
@@ -294,7 +272,7 @@ public class AmazonPayOnboardingService
             {
                 if (_amazonPaySettings.EnableLogging && !string.IsNullOrEmpty(credentials.PublicKeyId))
                 {
-                    var logMessage = $"{AmazonPayDefaults.PluginSystemName} encrypted public key id:{System.Environment.NewLine}{credentials.PublicKeyId}";
+                    var logMessage = $"{AmazonPayDefaults.PluginSystemName} encrypted public key id:{Environment.NewLine}{credentials.PublicKeyId}";
                     await _logger.InsertLogAsync(LogLevel.Debug, $"{AmazonPayDefaults.PluginSystemName} encrypted public key id", logMessage);
                 }
 
@@ -302,7 +280,7 @@ public class AmazonPayOnboardingService
 
                 if (_amazonPaySettings.EnableLogging && !string.IsNullOrEmpty(credentials.PublicKeyId))
                 {
-                    var logMessage = $"{AmazonPayDefaults.PluginSystemName} decrypted public key id:{System.Environment.NewLine}{credentials.PublicKeyId}";
+                    var logMessage = $"{AmazonPayDefaults.PluginSystemName} decrypted public key id:{Environment.NewLine}{credentials.PublicKeyId}";
                     await _logger.InsertLogAsync(LogLevel.Debug, $"{AmazonPayDefaults.PluginSystemName} decrypted public key id", logMessage);
                 }
             }

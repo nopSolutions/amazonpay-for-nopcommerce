@@ -28,16 +28,15 @@ public class AmazonPayOnboardingController : Controller
     {
         if (Uri.TryCreate(Request.Headers.Origin, UriKind.Absolute, out var uri) && AmazonPayDefaults.Onboarding.OriginUrls.Contains(uri.Host))
             Response.Headers.TryAdd("Access-Control-Allow-Origin", $"{Uri.UriSchemeHttps}{Uri.SchemeDelimiter}{uri.Host}");
+
         Response.Headers.TryAdd("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         Response.Headers.TryAdd("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token");
 
         var error = await _amazonPayOnboardingService.AutomaticKeyExchangeAsync(model.Payload);
 
-        if (string.IsNullOrEmpty(error))
-            return Json(new { result = "success" });
-
-        return new JsonResult(new { result = "error", message = error }) { StatusCode = 400 };
-
+        return string.IsNullOrEmpty(error)
+            ? Json(new { result = "success" })
+            : new JsonResult(new { result = "error", message = error }) { StatusCode = 400 };
     }
 
     #endregion

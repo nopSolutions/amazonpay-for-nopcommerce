@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Nop.Core.Http;
 using Nop.Plugin.Payments.AmazonPay.Enums;
 using Nop.Plugin.Payments.AmazonPay.Services;
 using Nop.Services.Messages;
@@ -38,7 +39,7 @@ public class AmazonPayCheckoutController : BasePublicController
             //validation
             var cart = await _amazonPayCheckoutService.GetCartAsync();
             if (!cart.Any())
-                return RedirectToRoute("ShoppingCart");
+                return RedirectToRoute(NopRouteNames.General.CART);
 
             if (!await _amazonPayCheckoutService.IsAllowedToCheckoutAsync())
                 return Challenge();
@@ -52,7 +53,7 @@ public class AmazonPayCheckoutController : BasePublicController
         {
             _notificationService.ErrorNotification(exception.Message);
 
-            return RedirectToRoute("ShoppingCart");
+            return RedirectToRoute(NopRouteNames.General.CART);
         }
     }
 
@@ -64,7 +65,7 @@ public class AmazonPayCheckoutController : BasePublicController
             //validation
             var cart = await _amazonPayCheckoutService.GetCartAsync();
             if (!cart.Any())
-                return RedirectToRoute("ShoppingCart");
+                return RedirectToRoute(NopRouteNames.General.CART);
 
             if (!await _amazonPayCheckoutService.IsAllowedToCheckoutAsync())
                 return Challenge();
@@ -76,7 +77,7 @@ public class AmazonPayCheckoutController : BasePublicController
                 var success = await _amazonPayCheckoutService.SetShippingMethodAsync(cart, shippingoption);
 
                 if (!success)
-                    return RedirectToAction("Confirm");
+                    return RedirectToRoute(AmazonPayDefaults.ConfirmRouteName);
             }
 
             var scWarnings = await _amazonPayCheckoutService.GetShoppingCartWarningsAsync(cart);
@@ -84,7 +85,7 @@ public class AmazonPayCheckoutController : BasePublicController
             {
                 _notificationService.WarningNotification(string.Join("<br />", scWarnings));
 
-                return RedirectToRoute("ShoppingCart");
+                return RedirectToRoute(NopRouteNames.General.CART);
             }
 
             var url = await _amazonPayCheckoutService.UpdateCheckoutSessionAsync();
@@ -95,7 +96,7 @@ public class AmazonPayCheckoutController : BasePublicController
         {
             _notificationService.ErrorNotification(exception.Message);
 
-            return RedirectToRoute("ShoppingCart");
+            return RedirectToRoute(NopRouteNames.General.CART);
         }
     }
 
@@ -119,7 +120,7 @@ public class AmazonPayCheckoutController : BasePublicController
         {
             var cart = await _amazonPayCheckoutService.GetCartAsync();
             if (!cart.Any())
-                return RedirectToRoute("ShoppingCart");
+                return RedirectToRoute(NopRouteNames.General.CART);
 
             var (order, warnings, model) = await _amazonPayCheckoutService.CompleteCheckoutAsync();
 
@@ -128,7 +129,7 @@ public class AmazonPayCheckoutController : BasePublicController
                 if (warnings.Any())
                     _notificationService.WarningNotification(string.Join("<br />", warnings));
 
-                return RedirectToRoute("ShoppingCart");
+                return RedirectToRoute(NopRouteNames.General.CART);
             }
 
             return View("~/Plugins/Payments.AmazonPay/Views/Completed.cshtml", model);
@@ -137,7 +138,7 @@ public class AmazonPayCheckoutController : BasePublicController
         {
             _notificationService.ErrorNotification(exception.Message);
 
-            return RedirectToRoute("ShoppingCart");
+            return RedirectToRoute(NopRouteNames.General.CART);
         }
     }
 

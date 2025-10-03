@@ -1,5 +1,4 @@
-﻿using Amazon.Pay.API.Types;
-using Amazon.Pay.API.WebStore.Charge;
+﻿using Amazon.Pay.API.WebStore.Charge;
 using Amazon.Pay.API.WebStore.ChargePermission;
 using Amazon.Pay.API.WebStore.Refund;
 using Amazon.Pay.API.WebStore.Types;
@@ -263,7 +262,7 @@ public class AmazonPayPaymentService
 
             if (_amazonPaySettings.EnableLogging)
             {
-                var logMessage = $"{AmazonPayDefaults.PluginSystemName} IPN request details:{System.Environment.NewLine}{body}";
+                var logMessage = $"{AmazonPayDefaults.PluginSystemName} IPN request details:{Environment.NewLine}{body}";
                 await _logger.InsertLogAsync(Core.Domain.Logging.LogLevel.Debug, $"{AmazonPayDefaults.PluginSystemName} IPN request details", logMessage);
             }
 
@@ -292,7 +291,7 @@ public class AmazonPayPaymentService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception);
         }
     }
@@ -466,11 +465,14 @@ public class AmazonPayPaymentService
         {
             CaptureNow = _amazonPaySettings.PaymentType == PaymentType.Capture,
             CanHandlePendingAuthorization = false,
-            PlatformId = AmazonPayDefaults.SpId
+            PlatformId = AmazonPayDefaults.SpId,
+            MerchantMetadata =
+            {
+                CustomInformation = AmazonPayDefaults.IntegrationName,
+                MerchantStoreName = store.Name,
+                MerchantReferenceId = processPaymentRequest.OrderGuid.ToString()
+            }
         };
-        request.MerchantMetadata.CustomInformation = AmazonPayDefaults.IntegrationName;
-        request.MerchantMetadata.MerchantStoreName = store.Name;
-        request.MerchantMetadata.MerchantReferenceId = processPaymentRequest.OrderGuid.ToString();
 
         var response = await _amazonPayApiService.PerformRequestAsync(client => client.CreateCharge(request, _amazonPayApiService.Headers),
             async message =>
@@ -490,7 +492,7 @@ public class AmazonPayPaymentService
                     }
 
                     if (message.ReasonCode.Equals("HardDeclined", StringComparison.InvariantCultureIgnoreCase))
-                        processResult.Errors.Add($@"Buyer may update their payment instrument using the following link: https://payments.amazon.com/jr/your-account/ba/{chargePermissionId}");
+                        processResult.Errors.Add($"Buyer may update their payment instrument using the following link: https://payments.amazon.com/jr/your-account/ba/{chargePermissionId}");
                 }
             });
 

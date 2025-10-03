@@ -60,10 +60,10 @@ public class DisallowedProducts
 
         if (disallowCategories.Any())
         {
-            if (!_products.ContainsKey(productId))
+            if (!_products.TryGetValue(productId, out var product))
                 _products.TryAdd(productId, disallowCategories);
             else
-                _products.TryUpdate(productId, disallowCategories, _products[productId]);
+                _products.TryUpdate(productId, disallowCategories, product);
 
             return true;
         }

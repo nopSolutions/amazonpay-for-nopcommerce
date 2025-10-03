@@ -16,7 +16,6 @@ using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Messages;
 using Nop.Services.Payments;
-using Nop.Web.Framework.Mvc.Routing;
 using AmazonCurrency = Amazon.Pay.API.Types.Currency;
 using Currency = Nop.Core.Domain.Directory.Currency;
 using Environment = Amazon.Pay.API.Types.Environment;
@@ -151,7 +150,7 @@ public class AmazonPayApiService
     public async Task<TResponse> PerformRequestAsync<TResponse>(Func<WebStoreClient, TResponse> action, Func<RequestErrorMessage, Task> badRequestHandler = null)
         where TResponse : AmazonPayResponse
     {
-        // send the request
+        //send the request
         var result = action(ApiClient);
 
         if (_amazonPaySettings.EnableLogging)
@@ -168,16 +167,16 @@ public class AmazonPayApiService
             await _logger.InsertLogAsync(LogLevel.Debug, $"{AmazonPayDefaults.PluginSystemName} response details", logMessage, customer);
         }
 
-        // check if API call was successful
-        if (!result.Success)
-        {
-            var message = RequestErrorMessage.Create(result.RawResponse);
+        //check if API call was successful
+        if (result.Success) 
+            return result;
 
-            if (badRequestHandler != null)
-                await badRequestHandler(message);
-            else
-                throw new NopException(message.Message);
-        }
+        var message = RequestErrorMessage.Create(result.RawResponse);
+
+        if (badRequestHandler != null)
+            await badRequestHandler(message);
+        else
+            throw new NopException(message.Message);
 
         return result;
     }

@@ -481,7 +481,7 @@ public class AmazonPayCheckoutService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return null;
@@ -676,7 +676,7 @@ public class AmazonPayCheckoutService
             var shippingIsRequired = await ShoppingCartRequiresShippingAsync();
 
             //when the model is prepared for the product page, this product is not yet in the cart, so we check it separately
-            if (!shippingIsRequired && await _productService.GetProductByIdAsync(productId ?? 0) is Product product)
+            if (!shippingIsRequired && await _productService.GetProductByIdAsync(productId ?? 0) is { } product)
                 shippingIsRequired = product.IsShipEnabled;
 
             var (currencyCode, _) = await _amazonPayApiService.GetCurrencyAsync();
@@ -698,7 +698,7 @@ public class AmazonPayCheckoutService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return null;
@@ -820,9 +820,9 @@ public class AmazonPayCheckoutService
                 request.ChargePermissionType = ChargePermissionType.Recurring;
                 request.RecurringMetadata.Frequency.Unit = cyclePeriod switch
                 {
-                    RecurringProductCyclePeriod.Days => (FrequencyUnit?)FrequencyUnit.Day,
-                    RecurringProductCyclePeriod.Weeks => (FrequencyUnit?)FrequencyUnit.Week,
-                    RecurringProductCyclePeriod.Months => (FrequencyUnit?)FrequencyUnit.Month,
+                    RecurringProductCyclePeriod.Days => FrequencyUnit.Day,
+                    RecurringProductCyclePeriod.Weeks => FrequencyUnit.Week,
+                    RecurringProductCyclePeriod.Months => FrequencyUnit.Month,
                     RecurringProductCyclePeriod.Years => (FrequencyUnit?)FrequencyUnit.Year,
                     _ => throw new ArgumentOutOfRangeException(),
                 };
@@ -838,7 +838,7 @@ public class AmazonPayCheckoutService
         }
         catch (Exception exception)
         {
-            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{System.Environment.NewLine}{exception.Message}";
+            var logMessage = $"{AmazonPayDefaults.PluginSystemName} error:{Environment.NewLine}{exception.Message}";
             await _logger.ErrorAsync(logMessage, exception, await _workContext.GetCurrentCustomerAsync());
 
             return (null, null, decimal.Zero);
@@ -898,9 +898,9 @@ public class AmazonPayCheckoutService
             request.ChargePermissionType = ChargePermissionType.Recurring;
             request.RecurringMetadata.Frequency.Unit = cyclePeriod switch
             {
-                RecurringProductCyclePeriod.Days => (FrequencyUnit?)FrequencyUnit.Day,
-                RecurringProductCyclePeriod.Weeks => (FrequencyUnit?)FrequencyUnit.Week,
-                RecurringProductCyclePeriod.Months => (FrequencyUnit?)FrequencyUnit.Month,
+                RecurringProductCyclePeriod.Days => FrequencyUnit.Day,
+                RecurringProductCyclePeriod.Weeks => FrequencyUnit.Week,
+                RecurringProductCyclePeriod.Months => FrequencyUnit.Month,
                 RecurringProductCyclePeriod.Years => (FrequencyUnit?)FrequencyUnit.Year,
                 _ => throw new ArgumentOutOfRangeException(),
             };
